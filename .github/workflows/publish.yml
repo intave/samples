@@ -1,0 +1,82 @@
+name: Publish to Maven Central
+
+on:
+  push:
+    tags:
+      - "v*"
+      - "[0-9]*"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: maven-central-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    if: github.event.deleted == false
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Check out release tag
+        uses: actions/checkout@v6
+
+      - name: Set up Java
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v6
+
+      - name: Validate tag and publishing secrets
+        shell: bash
+        env:
+          MAVEN_CENTRAL_USERNAME: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
+          MAVEN_CENTRAL_PASSWORD: ${{ secrets.MAVEN_CENTRAL_PASSWORD }}
+          SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
+          SIGNING_PASSWORD: ${{ secrets.SIGNING_PASSWORD }}
+        run: |
+          tag="${GITHUB_REF_NAME}"
+          version="${tag#v}"
+
+          if [[ ! "${version}" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z]+([.-][0-9A-Za-z]+)*)?$ ]]; then
+            echo "Tag '${tag}' is not a supported release version." >&2
+            exit 1
+          fi
+
+          missing=()
+          [[ -n "${MAVEN_CENTRAL_USERNAME}" ]] || missing+=(MAVEN_CENTRAL_USERNAME)
+          [[ -n "${MAVEN_CENTRAL_PASSWORD}" ]] || missing+=(MAVEN_CENTRAL_PASSWORD)
+          [[ -n "${SIGNING_KEY}" ]] || missing+=(SIGNING_KEY)
+          [[ -n "${SIGNING_PASSWORD}" ]] || missing+=(SIGNING_PASSWORD)
+
+          if (( ${#missing[@]} > 0 )); then
+            echo "Missing GitHub Actions secrets: ${missing[*]}" >&2
+            exit 1
+          fi
+
+          echo "RELEASE_VERSION=${version}" >> "${GITHUB_ENV}"
+
+      - name: Build, test, sign, and upload
+        env:
+          ORG_GRADLE_PROJECT_centralUsername: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
+          ORG_GRADLE_PROJECT_centralPassword: ${{ secrets.MAVEN_CENTRAL_PASSWORD }}
+          ORG_GRADLE_PROJECT_signingKey: ${{ secrets.SIGNING_KEY }}
+          ORG_GRADLE_PROJECT_signingPassword: ${{ secrets.SIGNING_PASSWORD }}
+        run: ./gradlew clean check publishAllPublicationsToCentralRepository -PreleaseVersion="${RELEASE_VERSION}" --no-daemon
+
+      - name: Request automatic publication
+        shell: bash
+        env:
+          MAVEN_CENTRAL_USERNAME: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
+          MAVEN_CENTRAL_PASSWORD: ${{ secrets.MAVEN_CENTRAL_PASSWORD }}
+        run: |
+          authorization="$(printf '%s:%s' "${MAVEN_CENTRAL_USERNAME}" "${MAVEN_CENTRAL_PASSWORD}" | base64 -w0)"
+          curl --fail-with-body --show-error --silent \
+            --request POST \
+            --header "Authorization: Bearer ${authorization}" \
+            "https://ossrh-staging-api.central.sonatype.com/manual/upload/defaultRepository/ac.intave?publishing_type=automatic"
