@@ -23,6 +23,8 @@ public abstract class EventSink implements Closeable {
 			visit((SlotSwitchEvent) event);
 		} else if (event instanceof PropertiesEvent) {
 			visit((PropertiesEvent) event);
+		} else if (event instanceof BlockUpdatesEvent) {
+			visit((BlockUpdatesEvent) event);
 		} else if (event instanceof BlockPlaceEvent) {
 			visit((BlockPlaceEvent) event);
 		} else if (event instanceof BlockInteractEvent) {
@@ -39,6 +41,10 @@ public abstract class EventSink implements Closeable {
 	}
 
 	public void visit(PropertiesEvent event) {
+		visitAny(event);
+	}
+
+	public void visit(BlockUpdatesEvent event) {
 		visitAny(event);
 	}
 

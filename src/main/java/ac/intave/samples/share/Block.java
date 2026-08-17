@@ -35,6 +35,7 @@ public final class Block {
 	@Override
 	public int hashCode() {
 		int result = name.hashCode();
+		result = 31 * result + properties.hashCode();
 		result = 31 * result + boundingBoxes.hashCode();
 		return result;
 	}
@@ -48,7 +49,9 @@ public final class Block {
 			return false;
 		}
 		Block other = (Block) obj;
-		return name.equals(other.name) && boundingBoxes.equals(other.boundingBoxes);
+		return name.equals(other.name) &&
+			properties.equals(other.properties) &&
+			boundingBoxes.equals(other.boundingBoxes);
 	}
 
 	@Override

@@ -14,6 +14,7 @@ public final class EventRegistry {
 		register("entity.move", EntityMoveEvent.class);
 		register("player.slot_switch", SlotSwitchEvent.class);
 		register("environment.properties", PropertiesEvent.class);
+		register("environment.block_updates", BlockUpdatesEvent.class);
 		register("player.init", PlayerInitEvent.class);
 		register("entity.spawn", EntitySpawnEvent.class);
 		register("entity.remove", EntityRemoveEvent.class);
