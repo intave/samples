@@ -1,6 +1,5 @@
 package ac.intave.samples.event;
 
-import ac.intave.samples.share.Blocks;
 import ac.intave.samples.share.Position;
 import ac.intave.samples.share.Rotation;
 import com.google.gson.annotations.SerializedName;
@@ -14,8 +13,6 @@ public final class PlayerMoveEvent extends Event {
   private Position position = Position.ZERO;
   @SerializedName("rotation")
   private Rotation rotation = Rotation.ZERO;
-  @SerializedName("blocks")
-  private Blocks blocks = Blocks.empty();
   @SerializedName("collidedHorizontally")
   private boolean collidedHorizontally;
   @SerializedName("collidedVertically")
@@ -181,10 +178,6 @@ public final class PlayerMoveEvent extends Event {
 
   public boolean jumped() {
     return jumped;
-  }
-
-  public Blocks blocks() {
-    return blocks;
   }
 
   public String input() {
