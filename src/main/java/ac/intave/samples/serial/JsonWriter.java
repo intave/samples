@@ -2,7 +2,6 @@ package ac.intave.samples.serial;
 
 import ac.intave.samples.event.*;
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonObject;
 
@@ -12,7 +11,7 @@ import java.nio.charset.StandardCharsets;
 public final class JsonWriter extends EventSink implements Flushable {
 	public static final int MOVEMENT_EVENTS_PER_FLUSH = 1200;
 
-	private final Gson gson = new GsonBuilder().disableJdkUnsafe().create();
+	private final Gson gson = new Gson();
 	private final Writer writer;
 	private int movementEventsSinceFlush;
 	private boolean closed;
