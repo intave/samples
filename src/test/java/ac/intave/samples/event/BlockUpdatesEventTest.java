@@ -73,8 +73,8 @@ final class BlockUpdatesEventTest {
 
 	@Test
 	void blockIdentityIncludesProperties() {
-		Block north = new Block("OAK_STAIRS", Map.of("facing", "north"), Collections.emptyList());
-		Block south = new Block("OAK_STAIRS", Map.of("facing", "south"), Collections.emptyList());
+		Block north = new Block("OAK_STAIRS", Collections.singletonMap("facing", "north"), Collections.emptyList());
+		Block south = new Block("OAK_STAIRS", Collections.singletonMap("facing", "south"), Collections.emptyList());
 
 		assertNotEquals(north, south);
 		assertNotEquals(north.hashCode(), south.hashCode());
