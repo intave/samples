@@ -1,3 +1,14 @@
+/*
+ * Copyright 2026 Intave
+ *
+ * This software is licensed under the PolyForm Perimeter License 1.0.0.
+ * You may use this software for any purpose, except for providing to
+ * others any product that competes with the software.
+ *
+ * A copy of the license is available at:
+ *   https://polyformproject.org/licenses/perimeter/1.0.0/
+ */
+
 package ac.intave.samples.event;
 
 import java.util.*;
@@ -10,6 +21,7 @@ public final class EventRegistry {
 		register("header", HeaderEvent.class);
 		register("combat.attack", AttackEvent.class);
 		register("input.click", ClickEvent.class);
+		register("client.tick_end", ClientTickEndEvent.class);
 		register("player.move", PlayerMoveEvent.class);
 		register("entity.move", EntityMoveEvent.class);
 		register("player.slot_switch", SlotSwitchEvent.class);
@@ -23,6 +35,10 @@ public final class EventRegistry {
 		register("window.click", WindowClickEvent.class);
 		register("window.items", WindowItemsEvent.class);
 		register("window.action", WindowActionEvent.class);
+		register("inventory.open", InventoryOpenEvent.class);
+		register("inventory.action", InventoryActionEvent.class);
+		register("inventory.update", InventoryUpdateEvent.class);
+		register("inventory.close", InventoryCloseEvent.class);
 	}
 
 	private EventRegistry() {
