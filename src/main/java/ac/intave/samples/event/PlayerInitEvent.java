@@ -1,3 +1,14 @@
+/*
+ * Copyright 2026 Intave
+ *
+ * This software is licensed under the PolyForm Perimeter License 1.0.0.
+ * You may use this software for any purpose, except for providing to
+ * others any product that competes with the software.
+ *
+ * A copy of the license is available at:
+ *   https://polyformproject.org/licenses/perimeter/1.0.0/
+ */
+
 package ac.intave.samples.event;
 
 import ac.intave.samples.share.Position;
@@ -21,6 +32,8 @@ public final class PlayerInitEvent extends Event {
   private Position position;
   @SerializedName("rotation")
   private Rotation rotation;
+  @SerializedName("isFlying")
+  private Boolean isFlying;
 
   public PlayerInitEvent() {
   }
@@ -37,6 +50,21 @@ public final class PlayerInitEvent extends Event {
     int id, int clientVersion, int serverVersion,
     Position position, Rotation rotation
   ) {
+    this(name, uuid, id, clientVersion, serverVersion, position, rotation, null);
+  }
+
+  public PlayerInitEvent(
+    int id, int clientVersion, int serverVersion,
+    Position position, Rotation rotation, Boolean isFlying
+  ) {
+    this(null, null, id, clientVersion, serverVersion, position, rotation, isFlying);
+  }
+
+  public PlayerInitEvent(
+    String name, UUID uuid,
+    int id, int clientVersion, int serverVersion,
+    Position position, Rotation rotation, Boolean isFlying
+  ) {
     this.name = name;
     this.uuid = uuid;
     this.id = id;
@@ -44,6 +72,7 @@ public final class PlayerInitEvent extends Event {
     this.serverVersion = serverVersion;
     this.position = position;
     this.rotation = rotation;
+    this.isFlying = isFlying;
   }
 
   public String name() {
@@ -72,6 +101,11 @@ public final class PlayerInitEvent extends Event {
 
   public Rotation rotation() {
     return rotation;
+  }
+
+  /** Initial flight state, distinct from permission to fly or gliding; null when unknown. */
+  public Boolean isFlying() {
+    return isFlying;
   }
 
   @Override

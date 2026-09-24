@@ -1,3 +1,14 @@
+/*
+ * Copyright 2026 Intave
+ *
+ * This software is licensed under the PolyForm Perimeter License 1.0.0.
+ * You may use this software for any purpose, except for providing to
+ * others any product that competes with the software.
+ *
+ * A copy of the license is available at:
+ *   https://polyformproject.org/licenses/perimeter/1.0.0/
+ */
+
 package ac.intave.samples.event;
 
 import ac.intave.samples.share.Position;
@@ -5,6 +16,7 @@ import ac.intave.samples.share.Rotation;
 import com.google.gson.annotations.SerializedName;
 
 import java.util.Locale;
+import java.util.Objects;
 
 public final class PlayerMoveEvent extends Event {
   @SerializedName("keys")
@@ -25,59 +37,26 @@ public final class PlayerMoveEvent extends Event {
   private boolean inVehicle;
   @SerializedName("sneaking")
   private boolean sneaking;
+  @SerializedName("clientSneaking")
+  private Boolean clientSneaking;
   @SerializedName("recentlyTeleported")
   private boolean recentlyTeleported;
   @SerializedName("jumped")
   private boolean jumped;
+  @SerializedName("sprinting")
+  private Boolean sprinting;
+  @SerializedName("pose")
+  private String pose;
 
   public PlayerMoveEvent() {
   }
 
+  /** Complete movement snapshot. Nullable fields are unknown when not recorded. */
   public PlayerMoveEvent(
-    float strafe, float forward,
-    double x, double y, double z,
-    float yaw, float pitch,
-    boolean collidedHorizontally,
-    boolean collidedVertically,
-    boolean inWater, boolean inLava,
-    boolean inVehicle, boolean sneaking,
-    boolean recentlyTeleported, boolean jumped
-  ) {
-    this(
-      strafe, forward,
-      new Position(x, y, z), new Rotation(yaw, pitch),
-      collidedHorizontally, collidedVertically, inWater, inLava,
-      inVehicle, sneaking, recentlyTeleported, jumped
-    );
-  }
-
-  public PlayerMoveEvent(
-    float strafe, float forward,
-    Position position, Rotation rotation,
-    boolean collidedHorizontally,
-    boolean collidedVertically,
-    boolean inWater, boolean inLava,
-    boolean inVehicle, boolean sneaking,
-    boolean recentlyTeleported, boolean jumped
-  ) {
-    this(
-      position, rotation, KeyCombination.from(strafe, forward).ordinal(),
-      collidedHorizontally, collidedVertically, inWater, inLava,
-      inVehicle, sneaking, recentlyTeleported, jumped
-    );
-  }
-
-  public PlayerMoveEvent(
-    Position position, Rotation rotation,
-    int keyOrdinal,
-    boolean collidedHorizontally,
-    boolean collidedVertically,
-    boolean inWater,
-    boolean inLava,
-    boolean inVehicle,
-    boolean sneaking,
-    boolean recentlyTeleported,
-    boolean jumped
+    Position position, Rotation rotation, int keyOrdinal,
+    boolean collidedHorizontally, boolean collidedVertically,
+    boolean inWater, boolean inLava, boolean inVehicle, boolean sneaking,
+    boolean recentlyTeleported, boolean jumped, Boolean sprinting, Boolean clientSneaking, String pose
   ) {
     this.keys = KeyCombination.values()[keyOrdinal];
     this.position = position;
@@ -90,6 +69,9 @@ public final class PlayerMoveEvent extends Event {
     this.sneaking = sneaking;
     this.recentlyTeleported = recentlyTeleported;
     this.jumped = jumped;
+    this.sprinting = sprinting;
+    this.clientSneaking = clientSneaking;
+    this.pose = pose;
   }
 
   public Position position() {
@@ -172,12 +154,31 @@ public final class PlayerMoveEvent extends Event {
     return sneaking;
   }
 
+  /** Client-reported sneak state at this snapshot; null when unknown, independent of sneaking(). */
+  public Boolean clientSneaking() {
+    return clientSneaking;
+  }
+
   public boolean recentlyTeleported() {
     return recentlyTeleported;
   }
 
   public boolean jumped() {
     return jumped;
+  }
+
+  /** Sprint state at this movement snapshot; null when unknown or absent in older recordings. */
+  public Boolean sprinting() {
+    return sprinting;
+  }
+
+  /**
+   * Pose name at this snapshot, such as STANDING, CROUCHING, SWIMMING or FALL_FLYING.
+   * Null means unknown. Names are preserved verbatim to support new poses without
+   * a protocol enum update; producers should use the pose's enum name, not its ordinal.
+   */
+  public String pose() {
+    return pose;
   }
 
   public String input() {
@@ -201,8 +202,11 @@ public final class PlayerMoveEvent extends Event {
       ", inLava=" + inLava +
       ", inVehicle=" + inVehicle +
       ", sneaking=" + sneaking +
+      ", clientSneaking=" + clientSneaking +
       ", recentlyTeleported=" + recentlyTeleported +
       ", jumped=" + jumped +
+      ", sprinting=" + sprinting +
+      ", pose=" + pose +
       '}';
   }
 
@@ -220,6 +224,9 @@ public final class PlayerMoveEvent extends Event {
     result = 31 * result + Boolean.hashCode(sneaking);
     result = 31 * result + Boolean.hashCode(recentlyTeleported);
     result = 31 * result + Boolean.hashCode(jumped);
+    result = 31 * result + Objects.hashCode(sprinting);
+    result = 31 * result + Objects.hashCode(clientSneaking);
+    result = 31 * result + Objects.hashCode(pose);
     return result;
   }
 
@@ -238,7 +245,10 @@ public final class PlayerMoveEvent extends Event {
       inVehicle == other.inVehicle &&
       sneaking == other.sneaking &&
       recentlyTeleported == other.recentlyTeleported &&
-      jumped == other.jumped;
+      jumped == other.jumped &&
+      Objects.equals(sprinting, other.sprinting) &&
+      Objects.equals(clientSneaking, other.clientSneaking) &&
+      Objects.equals(pose, other.pose);
   }
 
   public static PlayerMoveEvent create(
@@ -254,10 +264,9 @@ public final class PlayerMoveEvent extends Event {
     boolean jumped
   ) {
     return new PlayerMoveEvent(
-      strafe, forward,
-      position, rotation,
+      position, rotation, KeyCombination.from(strafe, forward).ordinal(),
       collidedHorizontally, collidedVertically, inWater, inLava,
-      inVehicle, sneaking, recentlyTeleported, jumped
+      inVehicle, sneaking, recentlyTeleported, jumped, null, null, null
     );
   }
 
@@ -275,11 +284,79 @@ public final class PlayerMoveEvent extends Event {
     boolean jumped
   ) {
     return new PlayerMoveEvent(
-      strafe, forward,
-      x, y, z, yaw, pitch,
+      new Position(x, y, z), new Rotation(yaw, pitch), KeyCombination.from(strafe, forward).ordinal(),
       collidedHorizontally, collidedVertically, inWater, inLava,
-      inVehicle, sneaking, recentlyTeleported, jumped
+      inVehicle, sneaking, recentlyTeleported, jumped, null, null, null
     );
+  }
+
+  public static PlayerMoveEvent create(
+    float strafe, float forward, Position position, Rotation rotation,
+    boolean collidedHorizontally, boolean collidedVertically,
+    boolean inWater, boolean inLava, boolean inVehicle, boolean sneaking,
+    boolean recentlyTeleported, boolean jumped, Boolean sprinting
+  ) {
+    return new PlayerMoveEvent(position, rotation, KeyCombination.from(strafe, forward).ordinal(),
+      collidedHorizontally, collidedVertically, inWater, inLava,
+      inVehicle, sneaking, recentlyTeleported, jumped, sprinting, null, null);
+  }
+
+  public static PlayerMoveEvent create(
+    float strafe, float forward,
+    double x, double y, double z, float yaw, float pitch,
+    boolean collidedHorizontally, boolean collidedVertically,
+    boolean inWater, boolean inLava, boolean inVehicle, boolean sneaking,
+    boolean recentlyTeleported, boolean jumped, Boolean sprinting
+  ) {
+    return new PlayerMoveEvent(new Position(x, y, z), new Rotation(yaw, pitch), KeyCombination.from(strafe, forward).ordinal(),
+      collidedHorizontally, collidedVertically, inWater, inLava,
+      inVehicle, sneaking, recentlyTeleported, jumped, sprinting, null, null);
+  }
+
+  public static PlayerMoveEvent create(
+    float strafe, float forward, Position position, Rotation rotation,
+    boolean collidedHorizontally, boolean collidedVertically,
+    boolean inWater, boolean inLava, boolean inVehicle, boolean sneaking,
+    boolean recentlyTeleported, boolean jumped, Boolean sprinting, Boolean clientSneaking
+  ) {
+    return new PlayerMoveEvent(position, rotation, KeyCombination.from(strafe, forward).ordinal(),
+      collidedHorizontally, collidedVertically, inWater, inLava,
+      inVehicle, sneaking, recentlyTeleported, jumped, sprinting, clientSneaking, null);
+  }
+
+  public static PlayerMoveEvent create(
+    float strafe, float forward,
+    double x, double y, double z, float yaw, float pitch,
+    boolean collidedHorizontally, boolean collidedVertically,
+    boolean inWater, boolean inLava, boolean inVehicle, boolean sneaking,
+    boolean recentlyTeleported, boolean jumped, Boolean sprinting, Boolean clientSneaking
+  ) {
+    return new PlayerMoveEvent(new Position(x, y, z), new Rotation(yaw, pitch), KeyCombination.from(strafe, forward).ordinal(),
+      collidedHorizontally, collidedVertically, inWater, inLava,
+      inVehicle, sneaking, recentlyTeleported, jumped, sprinting, clientSneaking, null);
+  }
+
+  public static PlayerMoveEvent create(
+    float strafe, float forward, Position position, Rotation rotation,
+    boolean collidedHorizontally, boolean collidedVertically,
+    boolean inWater, boolean inLava, boolean inVehicle, boolean sneaking,
+    boolean recentlyTeleported, boolean jumped, Boolean sprinting, Boolean clientSneaking, String pose
+  ) {
+    return new PlayerMoveEvent(position, rotation, KeyCombination.from(strafe, forward).ordinal(),
+      collidedHorizontally, collidedVertically, inWater, inLava,
+      inVehicle, sneaking, recentlyTeleported, jumped, sprinting, clientSneaking, pose);
+  }
+
+  public static PlayerMoveEvent create(
+    float strafe, float forward,
+    double x, double y, double z, float yaw, float pitch,
+    boolean collidedHorizontally, boolean collidedVertically,
+    boolean inWater, boolean inLava, boolean inVehicle, boolean sneaking,
+    boolean recentlyTeleported, boolean jumped, Boolean sprinting, Boolean clientSneaking, String pose
+  ) {
+    return new PlayerMoveEvent(new Position(x, y, z), new Rotation(yaw, pitch), KeyCombination.from(strafe, forward).ordinal(),
+      collidedHorizontally, collidedVertically, inWater, inLava,
+      inVehicle, sneaking, recentlyTeleported, jumped, sprinting, clientSneaking, pose);
   }
 
   private enum KeyCombination {

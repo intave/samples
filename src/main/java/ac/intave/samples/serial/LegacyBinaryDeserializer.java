@@ -1,3 +1,14 @@
+/*
+ * Copyright 2026 Intave
+ *
+ * This software is licensed under the PolyForm Perimeter License 1.0.0.
+ * You may use this software for any purpose, except for providing to
+ * others any product that competes with the software.
+ *
+ * A copy of the license is available at:
+ *   https://polyformproject.org/licenses/perimeter/1.0.0/
+ */
+
 package ac.intave.samples.serial;
 
 import ac.intave.samples.event.*;
@@ -142,7 +153,8 @@ public final class LegacyBinaryDeserializer {
 			(characteristicFlags & 16) != 0,
 			(characteristicFlags & 32) != 0,
 			(characteristicFlags & 64) != 0,
-			(characteristicFlags & 128) != 0
+			(characteristicFlags & 128) != 0,
+			null, null, null
 		);
 	}
 
@@ -192,7 +204,7 @@ public final class LegacyBinaryDeserializer {
 		Position position = readPosition(stream);
 		positions.put(entityId, position);
 		rotations.put(entityId, Rotation.ZERO);
-		return new EntitySpawnEvent(entityId, null, size, position);
+		return new EntitySpawnEvent(null, entityId, null, size, null, position);
 	}
 
 	private EntityRemoveEvent readEntityRemove() throws IOException {

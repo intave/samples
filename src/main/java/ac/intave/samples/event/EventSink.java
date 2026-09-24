@@ -16,8 +16,16 @@ import java.io.Closeable;
 
 public abstract class EventSink implements Closeable {
 	public void visitSelect(Event event) {
-		if (event instanceof AttackEvent) {
+		if (event instanceof MarkerEvent) {
+			visit((MarkerEvent) event);
+		} else if (event instanceof AttackEvent) {
 			visit((AttackEvent) event);
+		} else if (event instanceof DamageEvent) {
+			visit((DamageEvent) event);
+		} else if (event instanceof ItemActionEvent) {
+			visit((ItemActionEvent) event);
+		} else if (event instanceof TotemPopEvent) {
+			visit((TotemPopEvent) event);
 		} else if (event instanceof ClickEvent) {
 			visit((ClickEvent) event);
 		} else if (event instanceof ClientTickEndEvent) {
@@ -28,10 +36,22 @@ public abstract class EventSink implements Closeable {
 			visit((EntityRemoveEvent) event);
 		} else if (event instanceof EntityMoveEvent) {
 			visit((EntityMoveEvent) event);
+		} else if (event instanceof EntityPositionUncertaintyEvent) {
+			visit((EntityPositionUncertaintyEvent) event);
+		} else if (event instanceof EntityInteractEvent) {
+			visit((EntityInteractEvent) event);
 		} else if (event instanceof PlayerInitEvent) {
 			visit((PlayerInitEvent) event);
+		} else if (event instanceof PlayerFlyToggleEvent) {
+			visit((PlayerFlyToggleEvent) event);
 		} else if (event instanceof PlayerMoveEvent) {
 			visit((PlayerMoveEvent) event);
+		} else if (event instanceof PlayerVitalsEvent) {
+			visit((PlayerVitalsEvent) event);
+		} else if (event instanceof WorldChangeEvent) {
+			visit((WorldChangeEvent) event);
+		} else if (event instanceof TeleportEvent) {
+			visit((TeleportEvent) event);
 		} else if (event instanceof SlotSwitchEvent) {
 			visit((SlotSwitchEvent) event);
 		} else if (event instanceof PropertiesEvent) {
@@ -61,6 +81,10 @@ public abstract class EventSink implements Closeable {
 		}
 	}
 
+	public void visit(MarkerEvent event) {
+		visitAny(event);
+	}
+
 	public void visit(PropertiesEvent event) {
 		visitAny(event);
 	}
@@ -70,6 +94,18 @@ public abstract class EventSink implements Closeable {
 	}
 
 	public void visit(AttackEvent event) {
+		visitAny(event);
+	}
+
+	public void visit(DamageEvent event) {
+		visitAny(event);
+	}
+
+	public void visit(ItemActionEvent event) {
+		visitAny(event);
+	}
+
+	public void visit(TotemPopEvent event) {
 		visitAny(event);
 	}
 
@@ -93,11 +129,35 @@ public abstract class EventSink implements Closeable {
 		visitAny(event);
 	}
 
+	public void visit(EntityPositionUncertaintyEvent event) {
+		visitAny(event);
+	}
+
+	public void visit(EntityInteractEvent event) {
+		visitAny(event);
+	}
+
 	public void visit(PlayerInitEvent event) {
 		visitAny(event);
 	}
 
+	public void visit(PlayerFlyToggleEvent event) {
+		visitAny(event);
+	}
+
 	public void visit(PlayerMoveEvent event) {
+		visitAny(event);
+	}
+
+	public void visit(PlayerVitalsEvent event) {
+		visitAny(event);
+	}
+
+	public void visit(WorldChangeEvent event) {
+		visitAny(event);
+	}
+
+	public void visit(TeleportEvent event) {
 		visitAny(event);
 	}
 

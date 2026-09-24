@@ -19,17 +19,27 @@ public final class EventRegistry {
 
 	static {
 		register("header", HeaderEvent.class);
+		register("marker", MarkerEvent.class);
 		register("combat.attack", AttackEvent.class);
+		register("combat.damage", DamageEvent.class);
+		register("item.action", ItemActionEvent.class);
 		register("input.click", ClickEvent.class);
 		register("client.tick_end", ClientTickEndEvent.class);
 		register("player.move", PlayerMoveEvent.class);
+		register("player.vitals", PlayerVitalsEvent.class);
+		register("player.world_change", WorldChangeEvent.class);
+		register("player.teleport", TeleportEvent.class);
 		register("entity.move", EntityMoveEvent.class);
+		register("entity.position_uncertainty", EntityPositionUncertaintyEvent.class);
+		register("entity.interact", EntityInteractEvent.class);
 		register("player.slot_switch", SlotSwitchEvent.class);
 		register("environment.properties", PropertiesEvent.class);
 		register("environment.block_updates", BlockUpdatesEvent.class);
 		register("player.init", PlayerInitEvent.class);
+		register("player.fly_toggle", PlayerFlyToggleEvent.class);
 		register("entity.spawn", EntitySpawnEvent.class);
 		register("entity.remove", EntityRemoveEvent.class);
+		register("entity.totem_pop", TotemPopEvent.class);
 		register("block.place", BlockPlaceEvent.class);
 		register("block.interact", BlockInteractEvent.class);
 		register("window.click", WindowClickEvent.class);
