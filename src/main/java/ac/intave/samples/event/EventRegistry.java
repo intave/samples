@@ -34,6 +34,8 @@ public final class EventRegistry {
 		register("entity.interact", EntityInteractEvent.class);
 		register("player.slot_switch", SlotSwitchEvent.class);
 		register("environment.properties", PropertiesEvent.class);
+		register("environment.weather", WeatherEvent.class);
+		register("environment.time", TimeEvent.class);
 		register("environment.block_updates", BlockUpdatesEvent.class);
 		register("player.init", PlayerInitEvent.class);
 		register("player.fly_toggle", PlayerFlyToggleEvent.class);
@@ -49,6 +51,7 @@ public final class EventRegistry {
 		register("inventory.action", InventoryActionEvent.class);
 		register("inventory.update", InventoryUpdateEvent.class);
 		register("inventory.close", InventoryCloseEvent.class);
+		register("scoreboard", ScoreboardEvent.class);
 	}
 
 	private EventRegistry() {

@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "ac.intave"
-version = providers.gradleProperty("releaseVersion").getOrElse("0.0.1-SNAPSHOT")
+version = providers.gradleProperty("releaseVersion").getOrElse("0.0.10-SNAPSHOT")
 
 repositories {
   mavenCentral()
