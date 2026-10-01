@@ -19,6 +19,30 @@ public final class BoundingBox {
 			   minZ < other.maxZ && maxZ > other.minZ;
 	}
 
+	public double maxX() {
+		return maxX;
+	}
+
+	public double maxY() {
+		return maxY;
+	}
+
+	public double maxZ() {
+		return maxZ;
+	}
+
+	public double minX() {
+		return minX;
+	}
+
+	public double minY() {
+		return minY;
+	}
+
+	public double minZ() {
+		return minZ;
+	}
+
 	@Override
 	public int hashCode() {
 		int result = 17;
