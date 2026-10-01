@@ -13,7 +13,12 @@ package ac.intave.samples.event;
 
 import com.google.gson.annotations.SerializedName;
 
-/** A change to the recorded player's flight state, distinct from permission to fly or gliding. */
+/**
+ * A change to the recorded player's flight state, distinct from permission to fly or gliding.
+ *
+ * @deprecated Use {@link FlyStateUpdateEvent} for new recordings. Retained for reading older samples.
+ */
+@Deprecated
 public final class PlayerFlyToggleEvent extends Event {
   @SerializedName("isFlying")
   private boolean isFlying;

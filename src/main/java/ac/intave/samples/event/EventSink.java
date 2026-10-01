@@ -44,6 +44,8 @@ public abstract class EventSink implements Closeable {
 			visit((PlayerInitEvent) event);
 		} else if (event instanceof PlayerFlyToggleEvent) {
 			visit((PlayerFlyToggleEvent) event);
+		} else if (event instanceof FlyStateUpdateEvent) {
+			visit((FlyStateUpdateEvent) event);
 		} else if (event instanceof PlayerMoveEvent) {
 			visit((PlayerMoveEvent) event);
 		} else if (event instanceof PlayerVitalsEvent) {
@@ -156,6 +158,10 @@ public abstract class EventSink implements Closeable {
 	}
 
 	public void visit(PlayerFlyToggleEvent event) {
+		visitAny(event);
+	}
+
+	public void visit(FlyStateUpdateEvent event) {
 		visitAny(event);
 	}
 

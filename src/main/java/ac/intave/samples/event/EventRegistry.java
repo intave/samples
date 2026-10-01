@@ -39,6 +39,7 @@ public final class EventRegistry {
 		register("environment.block_updates", BlockUpdatesEvent.class);
 		register("player.init", PlayerInitEvent.class);
 		register("player.fly_toggle", PlayerFlyToggleEvent.class);
+		register("player.fly_state_update", FlyStateUpdateEvent.class);
 		register("entity.spawn", EntitySpawnEvent.class);
 		register("entity.remove", EntityRemoveEvent.class);
 		register("entity.totem_pop", TotemPopEvent.class);
