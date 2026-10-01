@@ -12,10 +12,7 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.*;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertInstanceOf;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.*;
 
 final class BlockUpdatesEventTest {
 	@Test
@@ -48,6 +45,63 @@ final class BlockUpdatesEventTest {
 		}
 
 		assertEquals(event.updates(), decoded.updates());
+	}
+
+	@Test
+	void splitsLargeUpdatesIntoReadableEvents() throws Exception {
+		List<BlockUpdate> updates = updates(24, 40);
+		BlockUpdatesEvent event = new BlockUpdatesEvent(updates);
+		event.withOffset(42L);
+		StringWriter output = new StringWriter();
+
+		new JsonWriter(output).visitAny(event);
+
+		String[] lines = output.toString().split("\\n");
+		assertTrue(lines.length > 1);
+		for (String line : lines) {
+			assertTrue(line.length() <= JsonReader.MAX_EVENT_CHARACTERS);
+		}
+		List<BlockUpdate> decodedUpdates = new ArrayList<>();
+		int decodedEvents = 0;
+		try (JsonReader reader = new JsonReader(new StringReader(output.toString()))) {
+			Event decoded;
+			while ((decoded = reader.nextEvent()) != null) {
+				BlockUpdatesEvent blockUpdates = assertInstanceOf(BlockUpdatesEvent.class, decoded);
+				assertEquals(decodedEvents++ == 0 ? 42L : 0L, blockUpdates.offset());
+				decodedUpdates.addAll(blockUpdates.updates());
+			}
+		}
+		assertEquals(lines.length, decodedEvents);
+		assertEquals(updates, decodedUpdates);
+	}
+
+	@Test
+	void rejectsOversizedUpdateBeforeWriting() {
+		BlockUpdatesEvent event = new BlockUpdatesEvent(updates(1, 400));
+		StringWriter output = new StringWriter();
+		JsonWriter writer = new JsonWriter(output);
+
+		assertThrows(IllegalArgumentException.class, () -> writer.visitAny(event));
+		assertEquals("", output.toString());
+	}
+
+	private static List<BlockUpdate> updates(int updateCount, int boxesPerBlock) {
+		List<BoundingBox> boxes = new ArrayList<>();
+		for (int index = 0; index < boxesPerBlock; index++) {
+			double min = index / (double) boxesPerBlock;
+			double max = (index + 1) / (double) boxesPerBlock;
+			boxes.add(new BoundingBox(min, 0.0, 0.0, max, 1.0, 1.0));
+		}
+		Block block = new Block(
+			"TEST_\"BLOCK",
+			Collections.singletonMap("quoted\\key", "<value>"),
+			boxes
+		);
+		List<BlockUpdate> updates = new ArrayList<>();
+		for (int index = 0; index < updateCount; index++) {
+			updates.add(new BlockUpdate(new BlockPosition(index, 64, -3), block));
+		}
+		return updates;
 	}
 
 	@Test
