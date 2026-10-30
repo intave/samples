@@ -179,9 +179,9 @@ public final class LegacyBinaryDeserializer {
 
 	private PropertiesEvent readProperties() throws IOException {
 		int size = readCollectionSize("properties", stream.readInt());
-		Map<String, Boolean> properties = new HashMap<>();
+		Map<String, String> properties = new HashMap<>();
 		for (int i = 0; i < size; i++) {
-			properties.put(stream.readUTF(), stream.readBoolean());
+			properties.put(stream.readUTF(), Boolean.toString(stream.readBoolean()));
 		}
 		return new PropertiesEvent(properties);
 	}

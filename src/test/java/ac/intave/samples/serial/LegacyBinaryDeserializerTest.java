@@ -220,6 +220,45 @@ class LegacyBinaryDeserializerTest {
 		assertNull(deserializer.nextEvent());
 	}
 
+	@Test
+	void convertsLegacyBooleanPropertiesToStrings() throws IOException {
+		ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+		try (DataOutputStream out = new DataOutputStream(bytes)) {
+			writeHeader(out, 0x1000);
+			writeEvent(out, 17, 5, event -> {
+				event.writeInt(2);
+				event.writeUTF("reducingDisabled");
+				event.writeBoolean(true);
+				event.writeUTF("otherRule");
+				event.writeBoolean(false);
+			});
+			writeEvent(out, 3, 1, event -> {});
+			out.writeShort(0);
+			out.writeByte(-1);
+		}
+
+		LegacyBinaryDeserializer deserializer = new LegacyBinaryDeserializer(
+			new ByteArrayInputStream(bytes.toByteArray())
+		);
+		assertInstanceOf(HeaderEvent.class, deserializer.nextEvent());
+		PropertiesEvent event = assertInstanceOf(PropertiesEvent.class, deserializer.nextEvent());
+		assertEquals("true", event.properties().get("reducingDisabled"));
+		assertEquals("false", event.properties().get("otherRule"));
+		assertEquals(17, event.offset());
+		assertInstanceOf(ClickEvent.class, deserializer.nextEvent());
+		assertNull(deserializer.nextEvent());
+
+		StringWriter output = new StringWriter();
+		try (JsonWriter writer = new JsonWriter(output)) {
+			writer.visitAny(event);
+		}
+		try (JsonReader reader = new JsonReader(new StringReader(output.toString()))) {
+			PropertiesEvent decoded = assertInstanceOf(PropertiesEvent.class, reader.nextEvent());
+			assertEquals(event.properties(), decoded.properties());
+			assertEquals(event.offset(), decoded.offset());
+		}
+	}
+
 	private static void writeHeader(DataOutputStream out, int flags) throws IOException {
 		out.writeUTF("INTAVE/SAMPLE");
 		out.writeUTF("test");
